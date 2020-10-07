@@ -33,9 +33,9 @@ jobs:
     - name: Build
       run: |
         mkdir dist
-        mv icon.* dist/
-        go build -o dist/autoshorten -v ./... 
-        GOOS=windows GOARCH=amd64 go build -ldflags "-H=windowsgui" -o dist/autoshorten.exe -v ./... 
+        go build -o dist/autoshorten -v cmd/autoshorten/autoshorten.go
+        GOOS=windows GOARCH=amd64 go build -ldflags "-H=windowsgui" -o dist/autoshorten.exe -v cmd/autoshorten/autoshorten.go
+        GOOS=windows GOARCH=amd64 go build -o dist/autoshorten-debug.exe -v cmd/autoshorten/autoshorten.go
       
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2

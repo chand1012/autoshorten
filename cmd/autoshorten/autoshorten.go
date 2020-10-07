@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"crypto/rand"
 	"fmt"
 	"io/ioutil"
@@ -11,12 +10,9 @@ import (
 	"time"
 
 	"github.com/atotto/clipboard"
+	"github.com/chand1012/autoshorten/icon"
 	"github.com/getlantern/systray"
-)
-
-var (
-	content   string
-	shortlink string
+	"github.com/pkg/browser"
 )
 
 func main() {
@@ -24,22 +20,24 @@ func main() {
 }
 
 func onReady() {
-	iconData, err := ioutil.ReadFile("icon.ico")
+
+	_, err := lockFileCreate()
 	if err != nil {
 		panic(err)
 	}
 
-	_, err = lockFileCreate()
-	if err != nil {
-		panic(err)
-	}
-
-	systray.SetTemplateIcon(iconData, iconData)
+	systray.SetTemplateIcon(icon.Data, icon.Data)
 	systray.SetTitle("Autoshorten")
-	systray.SetTooltip("Autoshorten Settings")
+	systray.SetTooltip("Autoshorten")
+	openBrowser := systray.AddMenuItem("Homepage", "Go to application homepage.")
+	tinyURL := systray.AddMenuItem("TinyURL", "TinyURL Homepage.")
+	systray.AddSeparator()
 	trayQuit := systray.AddMenuItem("Quit", "Quit the application.")
+
 	go quitRoutine(trayQuit)
 	go mainRoutine(trayQuit)
+	go homepageRoutine(openBrowser)
+	go tinyURLRoutine(tinyURL)
 }
 
 func onExit() {
@@ -52,11 +50,30 @@ func quitRoutine(quit *systray.MenuItem) {
 	systray.Quit()
 }
 
+func homepageRoutine(button *systray.MenuItem) {
+	for {
+		<-button.ClickedCh
+		fmt.Println("Opening Homepage.")
+		browser.OpenURL("https://github.com/chand1012/autoshorten")
+	}
+}
+
+func tinyURLRoutine(button *systray.MenuItem) {
+	for {
+		<-button.ClickedCh
+		fmt.Println("Opening TinyURL.")
+		browser.OpenURL("https://tinyurl.com/")
+	}
+}
+
 func mainRoutine(quit *systray.MenuItem) {
 	fmt.Println("Scanning for copied URLs.")
+	var content string
+	var shortlink string
+	var err error
 	for {
 		fmt.Println("Scanning....")
-		content, err := clipboard.ReadAll()
+		content, err = clipboard.ReadAll()
 		if err != nil {
 			fmt.Println(err)
 			continue
@@ -97,17 +114,6 @@ func shorten(link string) (string, error) {
 
 	response.Body.Close()
 	return string(output), err
-}
-
-func lockFileEqu(input []byte) (bool, error) {
-	data, err := ioutil.ReadFile("./thread.lock")
-	if err != nil {
-		return false, err
-	}
-	if bytes.Compare(input, data) == 0 {
-		return true, nil
-	}
-	return false, nil
 }
 
 func lockFileExists() bool {
