@@ -33,3 +33,7 @@ In the future I plan on adding an installer for Windows, but for now this is the
 <sub> These will be more detailed in the future.</sub>
 
 Download the executable, copy to a folder where you have write privileges, add to your startup programs via your favorite desktop environment.
+
+# Support
+
+If you have any issues, create an issue on the [GitHub Issues](https://tinyurl.com/yy74khym) page.
