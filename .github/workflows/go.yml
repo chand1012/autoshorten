@@ -34,7 +34,8 @@ jobs:
       run: |
         mkdir dist
         go build -o dist/autoshorten -v cmd/autoshorten/autoshorten.go
-        GOOS=windows GOARCH=amd64 go build -ldflags "-H=windowsgui" -o dist/autoshorten.exe -v cmd/autoshorten/autoshorten.go
+        GOOS=windows GOARCH=amd64 go build -ldflags "-H=windowsgui" -o dist/autoshorten-x86_64.exe -v cmd/autoshorten/autoshorten.go
+        GOOS=windows GOARCH=386 go build -ldflags "-H=windowsgui" -o dist/autoshorten-x86.exe -v cmd/autoshorten/autoshorten.go
         GOOS=windows GOARCH=amd64 go build -o dist/autoshorten-debug.exe -v cmd/autoshorten/autoshorten.go
       
     - name: Upload a Build Artifact
