@@ -32,9 +32,9 @@ func onReady() {
 	systray.SetTooltip("Autoshorten")
 	openBrowser := systray.AddMenuItem("Homepage", "Go to application homepage.")
 	tinyURL := systray.AddMenuItem("TinyURL", "TinyURL Homepage.")
+	gitIO := systray.AddMenuItem("Git.io", "Got to Git.io.")
 	systray.AddSeparator()
 	trayQuit := systray.AddMenuItem("Quit", "Quit the application.")
-	gitIO := systray.AddMenuItem("Git.io", "Got to Git.io.")
 
 	go quitRoutine(trayQuit)
 	go mainRoutine(trayQuit)
