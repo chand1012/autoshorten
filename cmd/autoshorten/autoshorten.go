@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -33,11 +34,13 @@ func onReady() {
 	tinyURL := systray.AddMenuItem("TinyURL", "TinyURL Homepage.")
 	systray.AddSeparator()
 	trayQuit := systray.AddMenuItem("Quit", "Quit the application.")
+	gitIO := systray.AddMenuItem("Git.io", "Got to Git.io.")
 
 	go quitRoutine(trayQuit)
 	go mainRoutine(trayQuit)
 	go homepageRoutine(openBrowser)
 	go tinyURLRoutine(tinyURL)
+	go gitIORoutine(gitIO)
 }
 
 func onExit() {
@@ -66,6 +69,14 @@ func tinyURLRoutine(button *systray.MenuItem) {
 	}
 }
 
+func gitIORoutine(button *systray.MenuItem) {
+	for {
+		<-button.ClickedCh
+		fmt.Println("Opening Git.io.")
+		browser.OpenURL("https://git.io/")
+	}
+}
+
 func mainRoutine(quit *systray.MenuItem) {
 	fmt.Println("Scanning for copied URLs.")
 	var content string
@@ -79,8 +90,13 @@ func mainRoutine(quit *systray.MenuItem) {
 			continue
 		}
 		if strings.HasPrefix(content, "http") && len(content) > 30 && content != shortlink && !strings.Contains(content, "\n") {
+			var shortlink string
 			fmt.Println("URL Copied: " + content)
-			shortlink, err = shorten(content)
+			if strings.Contains(content, "github.com") || strings.Contains(content, "github.io") || strings.Contains(content, "githubusercontent.com") {
+				shortlink, err = gitIOShorten(content)
+			} else {
+				shortlink, err = shorten(content)
+			}
 			if err != nil {
 				shortlink = ""
 				fmt.Println(err)
@@ -114,6 +130,31 @@ func shorten(link string) (string, error) {
 
 	response.Body.Close()
 	return string(output), err
+}
+
+func gitIOShorten(link string) (string, error) {
+	data := url.Values{
+		"url": []string{link},
+	}
+
+	resp, err := http.PostForm("https://git.io/create", data)
+
+	if err != nil {
+		return "", err
+	}
+
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		return "", err
+	}
+
+	endpoint := string(body)
+
+	return "https://git.io/" + endpoint, nil
+
 }
 
 func lockFileExists() bool {

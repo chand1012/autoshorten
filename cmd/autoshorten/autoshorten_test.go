@@ -17,3 +17,16 @@ func TestRequest(t *testing.T) {
 		t.Errorf("Was expecting the string to contain 'tinyurl.com', but it didn't. Returned string: %s", shortURL)
 	}
 }
+
+func TestGitIORequest(t *testing.T) {
+	testURL := "https://github.com/chand1012/chand1012/discussions"
+	shortURL, err := gitIOShorten(testURL)
+
+	if err != nil {
+		t.Errorf("There was an error testing the shorten function: %v", err)
+	}
+
+	if !strings.Contains(shortURL, "git.io") {
+		t.Errorf("Was expecting the string to contain 'tinyurl.com', but it didn't. Returned string: %s", shortURL)
+	}
+}
